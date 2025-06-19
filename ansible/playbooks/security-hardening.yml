@@ -1,0 +1,6 @@
+---
+- name: Security configuration
+  hosts: all
+  become: true
+  roles:
+    - security

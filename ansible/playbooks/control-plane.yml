@@ -1,0 +1,10 @@
+---
+- name: Deploy control plane
+  hosts: control
+  become: true
+  roles:
+    - common
+    - docker
+    - chrono-swarm-control
+    - monitoring
+    - security

@@ -1,0 +1,10 @@
+---
+- name: Deploy execution plane
+  hosts: execution
+  become: true
+  roles:
+    - common
+    - docker
+    - chrono-swarm
+    - monitoring
+    - security

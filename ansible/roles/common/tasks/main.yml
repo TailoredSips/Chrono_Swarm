@@ -1,0 +1,14 @@
+---
+- name: Ensure base packages are installed
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+    state: present
+    update_cache: yes
+
+- name: Ensure system is up to date
+  apt:
+    upgrade: dist
+    update_cache: yes

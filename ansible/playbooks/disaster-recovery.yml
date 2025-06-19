@@ -1,0 +1,6 @@
+---
+- name: Disaster recovery setup and testing
+  hosts: control
+  become: true
+  roles:
+    - disaster-recovery

@@ -1,0 +1,17 @@
+---
+- name: Ensure DR S3 bucket exists
+  aws_s3:
+    bucket: chrono-swarm-dr-backups
+    mode: create
+    region: us-west-2
+
+- name: Sync database backups
+  synchronize:
+    src: /var/backups/chrono-swarm/
+    dest: s3://chrono-swarm-dr-backups/
+    mode: push
+
+- name: Test DR failover
+  shell: ./scripts/backup-restore.sh restore latest.sql
+  args:
+    chdir: /workspaces/Chrono_Swarm
