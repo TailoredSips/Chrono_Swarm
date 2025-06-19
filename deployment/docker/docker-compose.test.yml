@@ -1,11 +1,7 @@
 version: '3.8'
-
 services:
   cs-orchestrator:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: orchestrator
+    image: chrono-swarm/cs-orchestrator:test
     environment:
       - RUST_LOG=debug
     ports:
@@ -17,46 +13,31 @@ services:
       - cs-spawner
       - cs-watchdog
   cs-api:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: api
+    image: chrono-swarm/cs-api:test
     environment:
       - RUST_LOG=debug
     ports:
       - "8081:8081"
   cs-scheduler:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: scheduler
+    image: chrono-swarm/cs-scheduler:test
     environment:
       - RUST_LOG=debug
     ports:
       - "8082:8082"
   cs-reconciler:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: reconciler
+    image: chrono-swarm/cs-reconciler:test
     environment:
       - RUST_LOG=debug
     ports:
       - "8083:8083"
   cs-spawner:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: spawner
+    image: chrono-swarm/cs-spawner:test
     environment:
       - RUST_LOG=debug
     ports:
       - "8084:8084"
   cs-watchdog:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: watchdog
+    image: chrono-swarm/cs-watchdog:test
     environment:
       - RUST_LOG=debug
     ports:

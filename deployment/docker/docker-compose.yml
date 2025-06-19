@@ -1,13 +1,10 @@
 version: '3.8'
-
 services:
   cs-orchestrator:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: orchestrator
+    image: chrono-swarm/cs-orchestrator:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8080:8080"
     depends_on:
@@ -17,52 +14,43 @@ services:
       - cs-spawner
       - cs-watchdog
   cs-api:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: api
+    image: chrono-swarm/cs-api:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8081:8081"
   cs-scheduler:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: scheduler
+    image: chrono-swarm/cs-scheduler:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8082:8082"
   cs-reconciler:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: reconciler
+    image: chrono-swarm/cs-reconciler:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8083:8083"
   cs-spawner:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: spawner
+    image: chrono-swarm/cs-spawner:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8084:8084"
   cs-watchdog:
-    build:
-      context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: watchdog
+    image: chrono-swarm/cs-watchdog:latest
+    restart: always
     environment:
-      - RUST_LOG=debug
+      - RUST_LOG=info
     ports:
       - "8085:8085"
   postgres:
     image: postgres:14-alpine
+    restart: always
     environment:
       - POSTGRES_USER=chrono
       - POSTGRES_PASSWORD=swarm
@@ -71,10 +59,12 @@ services:
       - "5432:5432"
   redis:
     image: redis:7-alpine
+    restart: always
     ports:
       - "6379:6379"
   kafka:
     image: bitnami/kafka:3.4
+    restart: always
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -86,6 +76,7 @@ services:
       - zookeeper
   zookeeper:
     image: bitnami/zookeeper:3.8
+    restart: always
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     ports:

@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1.4
+FROM rust:1.70 as builder
+WORKDIR /app
+COPY . .
+RUN cargo build --release --target=aarch64-unknown-linux-gnu
+
+FROM ubuntu:22.04 as orchestrator
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-orchestrator ./
+CMD ["./cs-orchestrator"]
+
+FROM ubuntu:22.04 as api
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-api ./
+CMD ["./cs-api"]
+
+FROM ubuntu:22.04 as scheduler
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-scheduler ./
+CMD ["./cs-scheduler"]
+
+FROM ubuntu:22.04 as reconciler
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-reconciler ./
+CMD ["./cs-reconciler"]
+
+FROM ubuntu:22.04 as spawner
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-spawner ./
+CMD ["./cs-spawner"]
+
+FROM ubuntu:22.04 as watchdog
+WORKDIR /app
+COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/cs-watchdog ./
+CMD ["./cs-watchdog"]
