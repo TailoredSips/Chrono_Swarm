@@ -1,44 +1,35 @@
-# Rust
-/target/
+# See https://rust-lang.github.io/rustup/overrides.html for workspace-level config
+/target
 **/*.rs.bk
-*.pdb
-
-# IDE
-.vscode/settings.json
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+**/*.swp
+**/*.swo
+**/*.tmp
 .DS_Store
-Thumbs.db
-
-# Terraform
-*.tfstate
-*.tfstate.*
-*.tfvars
-!*.tfvars.example
+.idea/
+.vscode/
+.env
+.env.*
+node_modules/
+*.log
+*.lock
+*.bak
+*.old
+*.orig
+*.rej
+*.sublime-workspace
+*.sublime-project
+*.iml
+*.pyc
+__pycache__/
 .terraform/
 .terraform.lock.hcl
-
-# Secrets
-*.pem
-*.key
-*.crt
-.env
-.env.local
-
-# Build artifacts
-/dist/
-/build/
-/bin/
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
+*.tfstate
+*.tfstate.*
+packer_cache/
+output-*.img
+output-*.box
+*.pid
+*.sock
+*.db
+*.sqlite
+*.sqlite3

@@ -1,0 +1,61 @@
+---
+- name: Deploy Chrono-Swarm Infrastructure
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Include deployment orchestration
+      include_tasks: orchestrate-deployment.yml
+
+- name: Configure Control Plane
+  hosts: control_plane
+  become: yes
+  roles:
+    - common
+    - docker
+    - monitoring
+    - security
+    - chrono-swarm-control
+  tags:
+    - control-plane
+
+- name: Configure Execution Plane
+  hosts: execution_plane
+  become: yes
+  roles:
+    - common
+    - docker
+    - monitoring
+    - security
+    - chrono-swarm-execution
+  tags:
+    - execution-plane
+
+- name: Configure Database Layer
+  hosts: database
+  become: yes
+  roles:
+    - common
+    - monitoring
+    - security
+    - chrono-swarm-database
+  tags:
+    - database
+
+- name: Disaster Recovery Setup
+  hosts: disaster_recovery
+  become: yes
+  roles:
+    - common
+    - monitoring
+    - security
+    - chrono-swarm-dr
+  tags:
+    - disaster-recovery
+
+- name: Validation and Health Checks
+  hosts: all
+  tasks:
+    - name: Validate deployment
+      include_tasks: validate-deployment.yml
+  tags:
+    - validation

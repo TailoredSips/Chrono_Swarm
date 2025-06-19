@@ -1,0 +1,35 @@
+{
+  "name": "System Onboarding Task",
+  "description": "Initial system validation and setup task",
+  "agent_type": "system-validator",
+  "priority": "high",
+  "timeout_seconds": 300,
+  "max_retries": 2,
+  "payload": {
+    "validation_type": "full_system",
+    "checks": [
+      "network_connectivity",
+      "database_connection",
+      "kafka_cluster",
+      "redis_cache",
+      "file_system_permissions"
+    ],
+    "setup_tasks": [
+      "create_default_topics",
+      "initialize_database_schema",
+      "configure_monitoring_endpoints",
+      "setup_health_checks"
+    ]
+  },
+  "resources": {
+    "cpu_limit": "500m",
+    "memory_limit": "256Mi",
+    "disk_limit": "1Gi"
+  },
+  "metadata": {
+    "environment": "production",
+    "version": "1.0.0",
+    "created_by": "system",
+    "tags": ["onboarding", "validation", "setup"]
+  }
+}

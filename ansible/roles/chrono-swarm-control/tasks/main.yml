@@ -1,0 +1,111 @@
+---
+- name: Create chrono-swarm system user
+  user:
+    name: chrono-swarm
+    system: yes
+    shell: /bin/false
+    home: /opt/chrono-swarm
+    create_home: yes
+
+- name: Create application directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: chrono-swarm
+    group: chrono-swarm
+    mode: '0755'
+  loop:
+    - /opt/chrono-swarm/bin
+    - /opt/chrono-swarm/config
+    - /opt/chrono-swarm/logs
+    - /opt/chrono-swarm/data
+
+- name: Deploy Chrono-Swarm binaries
+  copy:
+    src: "{{ item.src }}"
+    dest: "/opt/chrono-swarm/bin/{{ item.dest }}"
+    owner: chrono-swarm
+    group: chrono-swarm
+    mode: '0755'
+  loop:
+    - { src: "binaries/cs-orchestrator", dest: "cs-orchestrator" }
+    - { src: "binaries/cs-scheduler", dest: "cs-scheduler" }
+    - { src: "binaries/cs-reconciler", dest: "cs-reconciler" }
+    - { src: "binaries/cs-watchdog", dest: "cs-watchdog" }
+    - { src: "binaries/cs-api", dest: "cs-api" }
+  notify:
+    - restart chrono-swarm services
+
+- name: Deploy configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "/opt/chrono-swarm/config/{{ item.dest }}"
+    owner: chrono-swarm
+    group: chrono-swarm
+    mode: '0640'
+  loop:
+    - { src: "orchestrator.toml.j2", dest: "orchestrator.toml" }
+    - { src: "scheduler.toml.j2", dest: "scheduler.toml" }
+    - { src: "reconciler.toml.j2", dest: "reconciler.toml" }
+    - { src: "watchdog.toml.j2", dest: "watchdog.toml" }
+    - { src: "api.toml.j2", dest: "api.toml" }
+  notify:
+    - restart chrono-swarm services
+
+- name: Deploy systemd service files
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+    mode: '0644'
+  loop:
+    - cs-orchestrator
+    - cs-scheduler
+    - cs-reconciler
+    - cs-watchdog
+    - cs-api
+  notify:
+    - reload systemd
+    - restart chrono-swarm services
+
+- name: Enable and start Chrono-Swarm services
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  loop:
+    - cs-orchestrator
+    - cs-scheduler
+    - cs-reconciler
+    - cs-watchdog
+    - cs-api
+
+- name: Configure log rotation
+  template:
+    src: chrono-swarm.logrotate.j2
+    dest: /etc/logrotate.d/chrono-swarm
+    mode: '0644'
+
+- name: Configure monitoring
+  template:
+    src: prometheus-node-exporter.service.j2
+    dest: /etc/systemd/system/prometheus-node-exporter.service
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart prometheus-node-exporter
+
+- name: Setup health check scripts
+  template:
+    src: health-check.sh.j2
+    dest: /opt/chrono-swarm/bin/health-check.sh
+    mode: '0755'
+    owner: chrono-swarm
+    group: chrono-swarm
+
+- name: Configure health check cron job
+  cron:
+    name: "Chrono-Swarm Health Check"
+    minute: "*/5"
+    job: "/opt/chrono-swarm/bin/health-check.sh"
+    user: chrono-swarm
