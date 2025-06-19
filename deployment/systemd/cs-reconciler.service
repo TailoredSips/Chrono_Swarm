@@ -1,0 +1,12 @@
+[Unit]
+Description=Chrono Swarm Reconciler
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cs-reconciler
+Restart=always
+User=chrono
+
+[Install]
+WantedBy=multi-user.target

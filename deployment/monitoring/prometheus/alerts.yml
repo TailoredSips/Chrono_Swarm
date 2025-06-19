@@ -1,0 +1,10 @@
+groups:
+  - name: chrono-swarm-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: avg(rate(process_cpu_seconds_total[5m])) by (instance) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected on {{ $labels.instance }}"

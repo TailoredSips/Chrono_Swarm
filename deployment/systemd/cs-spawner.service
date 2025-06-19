@@ -1,0 +1,12 @@
+[Unit]
+Description=Chrono Swarm Spawner
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cs-spawner
+Restart=always
+User=chrono
+
+[Install]
+WantedBy=multi-user.target
