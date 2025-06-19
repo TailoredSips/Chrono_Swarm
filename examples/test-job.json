@@ -1,0 +1,11 @@
+{
+  "name": "Test Agent Job",
+  "description": "Simple test task for system validation",
+  "agent_type": "test-processor",
+  "priority": "normal",
+  "timeout_seconds": 60,
+  "payload": {
+    "test_data": "Hello Chrono-Swarm",
+    "iterations": 10
+  }
+}
