@@ -64,7 +64,7 @@ prost = "0.12"
 # Database
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "migrate"] }
 deadpool-postgres = "0.12"
-deadpool-redis = "0.14"
+deadpool-redis = "0.21"
 redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
 
 # Messaging
