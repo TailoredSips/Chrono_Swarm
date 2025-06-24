@@ -1,95 +1,131 @@
-version: '3.8'
-
 services:
   cs-orchestrator:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: orchestrator
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-orchestrator
     environment:
       - RUST_LOG=debug
+      - KAFKA_BROKERS=kafka:9092
+      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/chronodb
+      - REDIS_URL=redis://redis:6379
     ports:
       - "8080:8080"
     depends_on:
-      - cs-api
-      - cs-scheduler
-      - cs-reconciler
-      - cs-spawner
-      - cs-watchdog
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - chrono-net
+
   cs-api:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: api
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-api
     environment:
       - RUST_LOG=debug
     ports:
       - "8081:8081"
+    networks:
+      - chrono-net
+
   cs-scheduler:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: scheduler
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-scheduler
     environment:
       - RUST_LOG=debug
     ports:
       - "8082:8082"
+    networks:
+      - chrono-net
+
   cs-reconciler:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: reconciler
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-reconciler
     environment:
       - RUST_LOG=debug
     ports:
       - "8083:8083"
+    networks:
+      - chrono-net
+
   cs-spawner:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: spawner
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-spawner
     environment:
       - RUST_LOG=debug
     ports:
       - "8084:8084"
+    networks:
+      - chrono-net
+
   cs-watchdog:
     build:
       context: ../..
-      dockerfile: Dockerfile.multi-stage
-      target: watchdog
+      dockerfile: deployment/docker/service-dockerfiles/Dockerfile.cs-watchdog
     environment:
       - RUST_LOG=debug
     ports:
       - "8085:8085"
+    networks:
+      - chrono-net
+
   postgres:
-    image: postgres:14-alpine
+    image: postgres:16-alpine
     environment:
-      - POSTGRES_USER=chrono
-      - POSTGRES_PASSWORD=swarm
-      - POSTGRES_DB=chrono
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chronodb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - chrono-net
+
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
     ports:
       - "6379:6379"
-  kafka:
-    image: bitnami/kafka:3.4
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
+    networks:
+      - chrono-net
+
   zookeeper:
-    image: bitnami/zookeeper:3.8
+    image: confluentinc/cp-zookeeper:7.5.0
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    networks:
+      - chrono-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - chrono-net
+
 networks:
-  default:
+  chrono-net:
     driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

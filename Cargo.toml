@@ -34,7 +34,6 @@ panic = 'abort'
 strip = true
 opt-level = 3
 # Optimized for OCI's Ampere A1 CPUs - ARM64 Neoverse N1 architecture
-target-cpu = "neoverse-n1"
 overflow-checks = false
 
 [profile.dev]
