@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  orchestrator:
+    build: ./servers/orchestrator
+    volumes:
+      - ./servers/orchestrator/routes.json:/usr/src/app/routes.json
+    ports:
+      - "7070:8080" # The single entry point
+  
+  filesystem:
+    # Use the perfection Dockerfile template for this service
+    build: ./servers/filesystem
+    volumes:
+      - /workspaces:/workspace
+
+  terminal:
+    # Use the perfection Dockerfile template for this service
+    build: ./servers/terminal

@@ -1,0 +1,6 @@
+{
+  "servers": [
+    { "prefix": "fs", "url": "http://filesystem:8080" },
+    { "prefix": "term", "url": "http://terminal:8080" }
+  ]
+}
